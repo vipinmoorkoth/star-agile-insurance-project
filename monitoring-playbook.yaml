@@ -17,7 +17,7 @@
         state: present
 
     - name: Add Docker GPG key
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
       args:
         warn: false
 
@@ -33,10 +33,11 @@
         update_cache: yes
 
     - name: Install Docker Compose
-      get_url:
-        url: https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-`uname -s`-`uname -m`
-        dest: /usr/local/bin/docker-compose
-        mode: '0755'
+      shell: |
+        curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+      args:
+        executable: /bin/bash
 
     - name: Start Docker service
       service:
