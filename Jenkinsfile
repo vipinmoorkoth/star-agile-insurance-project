@@ -10,15 +10,19 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout your Git repo (adjust URL and branch as needed)
                 git branch: 'master', url: 'https://github.com/vipinmoorkoth/star-agile-insurance-project.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build docker image with tag
                     sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
@@ -27,7 +31,6 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    // Login to Docker Hub with credentials stored in Jenkins
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                 }
             }
@@ -36,7 +39,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push image to Docker Hub repo
                     sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
@@ -45,7 +47,6 @@ pipeline {
         stage('Deploy App Node') {
             steps {
                 script {
-                    // Run Ansible playbook for app node
                     sh 'ansible-playbook -i host.ini app-playbook.yaml'
                 }
             }
@@ -54,7 +55,6 @@ pipeline {
         stage('Deploy Monitoring Node') {
             steps {
                 script {
-                    // Run Ansible playbook for monitoring node
                     sh 'ansible-playbook -i host.ini monitoring-playbook.yaml'
                 }
             }
@@ -64,7 +64,6 @@ pipeline {
     post {
         always {
             script {
-                // Logout of Docker Hub after pipeline finishes
                 sh 'docker logout'
             }
         }
